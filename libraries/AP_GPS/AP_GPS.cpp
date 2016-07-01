@@ -32,6 +32,7 @@
 #include "AP_GPS_SBP.h"
 #include "AP_GPS_SIRF.h"
 #include "AP_GPS_UBLOX.h"
+#include "AP_GPS_SHOUBEI.h"//added by LSH
 #include "GPS_Backend.h"
 
 extern const AP_HAL::HAL &hal;
@@ -287,6 +288,14 @@ AP_GPS::detect_instance(uint8_t instance)
             _broadcast_gps_type("u-blox", instance, dstate->last_baud);
             new_gps = new AP_GPS_UBLOX(*this, state[instance], _port[instance]);
         } 
+               //added by LSH
+    	else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_SHOUBEI)&&
+    		AP_GPS_SHOUBEI::_detect(dstate->shoubei_detect_state,data))
+    	{
+    					_broadcast_gps_type("SHOUBEI", instance, dstate->last_baud);
+    					new_gps = new AP_GPS_SHOUBEI(*this, state[instance], _port[instance]);
+
+    	}
 		else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_MTK19) &&
                  AP_GPS_MTK19::_detect(dstate->mtk19_detect_state, data)) {
 			_broadcast_gps_type("MTK19", instance, dstate->last_baud);
