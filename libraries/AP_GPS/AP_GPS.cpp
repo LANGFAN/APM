@@ -289,48 +289,52 @@ AP_GPS::detect_instance(uint8_t instance)
             new_gps = new AP_GPS_UBLOX(*this, state[instance], _port[instance]);
         } 
                //added by LSH
-    	else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_SHOUBEI)&&
-    		AP_GPS_SHOUBEI::_detect(dstate->shoubei_detect_state,data))
-    	{
-    					_broadcast_gps_type("SHOUBEI", instance, dstate->last_baud);
-    					new_gps = new AP_GPS_SHOUBEI(*this, state[instance], _port[instance]);
+       	else if (now - dstate->detect_started_ms > (ARRAY_SIZE(_baudrates) * GPS_BAUD_TIME_MS)) {
+        			// prevent false detection of NMEA mode in
+        			// a MTK or UBLOX which has booted in NMEA mode
+					 if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_SHOUBEI)&&
+								AP_GPS_SHOUBEI::_detect(dstate->shoubei_detect_state,data))
+							{
+											_broadcast_gps_type("SHOUBEI", instance, dstate->last_baud);
+											new_gps = new AP_GPS_SHOUBEI(*this, state[instance], _port[instance]);
 
-    	}
-		else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_MTK19) &&
-                 AP_GPS_MTK19::_detect(dstate->mtk19_detect_state, data)) {
-			_broadcast_gps_type("MTK19", instance, dstate->last_baud);
-			new_gps = new AP_GPS_MTK19(*this, state[instance], _port[instance]);
-		} 
-		else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_MTK) &&
-                 AP_GPS_MTK::_detect(dstate->mtk_detect_state, data)) {
-			_broadcast_gps_type("MTK", instance, dstate->last_baud);
-			new_gps = new AP_GPS_MTK(*this, state[instance], _port[instance]);
-		}
-        else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_SBP) &&
-                 AP_GPS_SBP::_detect(dstate->sbp_detect_state, data)) {
-            _broadcast_gps_type("SBP", instance, dstate->last_baud);
-            new_gps = new AP_GPS_SBP(*this, state[instance], _port[instance]);
-        }
-		// save a bit of code space on a 1280
-		else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_SIRF) &&
-                 AP_GPS_SIRF::_detect(dstate->sirf_detect_state, data)) {
-			_broadcast_gps_type("SIRF", instance, dstate->last_baud);
-			new_gps = new AP_GPS_SIRF(*this, state[instance], _port[instance]);
-		}
-        else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_ERB) &&
-                 AP_GPS_ERB::_detect(dstate->erb_detect_state, data)) {
-            _broadcast_gps_type("ERB", instance, dstate->last_baud);
-            new_gps = new AP_GPS_ERB(*this, state[instance], _port[instance]);
-        }
-		else if (now - dstate->detect_started_ms > (ARRAY_SIZE(_baudrates) * GPS_BAUD_TIME_MS)) {
-			// prevent false detection of NMEA mode in
-			// a MTK or UBLOX which has booted in NMEA mode
-			if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_NMEA) &&
-                AP_GPS_NMEA::_detect(dstate->nmea_detect_state, data)) {
-				_broadcast_gps_type("NMEA", instance, dstate->last_baud);
-				new_gps = new AP_GPS_NMEA(*this, state[instance], _port[instance]);
-			}
-		}
+							}
+      		}
+//		else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_MTK19) &&
+//                 AP_GPS_MTK19::_detect(dstate->mtk19_detect_state, data)) {
+//			_broadcast_gps_type("MTK19", instance, dstate->last_baud);
+//			new_gps = new AP_GPS_MTK19(*this, state[instance], _port[instance]);
+//		}
+//		else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_MTK) &&
+//                 AP_GPS_MTK::_detect(dstate->mtk_detect_state, data)) {
+//			_broadcast_gps_type("MTK", instance, dstate->last_baud);
+//			new_gps = new AP_GPS_MTK(*this, state[instance], _port[instance]);
+//		}
+//        else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_SBP) &&
+//                 AP_GPS_SBP::_detect(dstate->sbp_detect_state, data)) {
+//            _broadcast_gps_type("SBP", instance, dstate->last_baud);
+//            new_gps = new AP_GPS_SBP(*this, state[instance], _port[instance]);
+//        }
+//		// save a bit of code space on a 1280
+//		else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_SIRF) &&
+//                 AP_GPS_SIRF::_detect(dstate->sirf_detect_state, data)) {
+//			_broadcast_gps_type("SIRF", instance, dstate->last_baud);
+//			new_gps = new AP_GPS_SIRF(*this, state[instance], _port[instance]);
+//		}
+//        else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_ERB) &&
+//                 AP_GPS_ERB::_detect(dstate->erb_detect_state, data)) {
+//            _broadcast_gps_type("ERB", instance, dstate->last_baud);
+//            new_gps = new AP_GPS_ERB(*this, state[instance], _port[instance]);
+//        }
+//		else if (now - dstate->detect_started_ms > (ARRAY_SIZE(_baudrates) * GPS_BAUD_TIME_MS)) {
+//			// prevent false detection of NMEA mode in
+//			// a MTK or UBLOX which has booted in NMEA mode
+//			if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_NMEA) &&
+//                AP_GPS_NMEA::_detect(dstate->nmea_detect_state, data)) {
+//				_broadcast_gps_type("NMEA", instance, dstate->last_baud);
+//				new_gps = new AP_GPS_NMEA(*this, state[instance], _port[instance]);
+//			}
+//		}
 	}
 
 #if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_QURT
