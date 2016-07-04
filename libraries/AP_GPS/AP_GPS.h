@@ -68,7 +68,8 @@ public:
         GPS_TYPE_SBF   = 10,
 		GPS_TYPE_GSOF  = 11,
 		GPS_TYPE_QURT  = 12,
-        GPS_TYPE_ERB = 13,
+        GPS_TYPE_SHOUBEI=13,//added by LSH
+        GPS_TYPE_ERB = 14, //changed by LSH
     };
 
     /// GPS status codes
@@ -416,6 +417,7 @@ private:
         struct NMEA_detect_state nmea_detect_state;
         struct SBP_detect_state sbp_detect_state;
         struct ERB_detect_state erb_detect_state;
+        struct SHOUBEI_detect_state shoubei_detect_state;//added by LSH
     } detect_state[GPS_MAX_INSTANCES];
 
     struct {
