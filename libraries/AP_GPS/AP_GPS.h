@@ -113,9 +113,10 @@ public:
         Location location;                  ///< last fix location
         float ground_speed;                 ///< ground speed in m/sec
         float ground_course;                ///< ground course in degrees
-        uint16_t hdop;                      ///< horizontal dilution of precision in cm
+				float gps_heading;									///< body heading measured by differential gps, such as UN237
+				uint16_t hdop;                      ///< horizontal dilution of precision in cm
         uint16_t vdop;                      ///< vertical dilution of precision in cm
-        uint8_t num_sats;                   ///< Number of visible satellites        
+        uint8_t num_sats;                   ///< Number of visible satellites
         Vector3f velocity;                  ///< 3D velocitiy in m/s, in NED format
         float speed_accuracy;
         float horizontal_accuracy;
@@ -124,7 +125,8 @@ public:
         bool have_speed_accuracy:1;
         bool have_horizontal_accuracy:1;
         bool have_vertical_accuracy:1;
-        uint32_t last_gps_time_ms;          ///< the system time we got the last GPS timestamp, milliseconds
+				bool have_gps_heading:1;						///< does this gps give vehicle heading??
+				uint32_t last_gps_time_ms;          ///< the system time we got the last GPS timestamp, milliseconds
     };
 
     // Accessor functions
@@ -230,6 +232,20 @@ public:
         return ground_course_cd(primary_instance);
     }
 
+		// vehicle heading measured by diff gps in degrees
+		float gps_heading(uint8_t instance) const {
+				return state[instance].gps_heading;
+		}
+		float gps_heading() const {
+				return gps_heading(primary_instance);
+		}
+		int32_t gps_heading_cd(uint8_t instance) const {
+				return gps_heading(instance) * 100;
+		}
+		int32_t gps_heading_cd() const {
+				return gps_heading_cd(primary_instance);
+		}
+
     // number of locked satellites
     uint8_t num_sats(uint8_t instance) const {
         return state[instance].num_sats;
@@ -290,32 +306,40 @@ public:
 
     // convert GPS week and millis to unix epoch in ms
     static uint64_t time_epoch_convert(uint16_t gps_week, uint32_t gps_ms);
-    
+
     // return last fix time since the 1/1/1970 in microseconds
     uint64_t time_epoch_usec(uint8_t instance);
-    uint64_t time_epoch_usec(void) { 
-        return time_epoch_usec(primary_instance); 
+    uint64_t time_epoch_usec(void) {
+        return time_epoch_usec(primary_instance);
     }
 
 	// return true if the GPS supports vertical velocity values
-    bool have_vertical_velocity(uint8_t instance) const { 
-        return state[instance].have_vertical_velocity; 
+    bool have_vertical_velocity(uint8_t instance) const {
+        return state[instance].have_vertical_velocity;
     }
-    bool have_vertical_velocity(void) const { 
+    bool have_vertical_velocity(void) const {
         return have_vertical_velocity(primary_instance);
     }
+
+		// return ture if vehicle heading measured by diff gps is valid, such as UN237 product from unistrong company
+		bool have_gps_heading(uint8_t instance) const {
+			return state[instance].have_gps_heading;
+		}
+		bool have_gps_heading(void) const {
+			return have_gps_heading(primary_instance);
+		}
 
     // the expected lag (in seconds) in the position and velocity readings from the gps
     float get_lag() const { return 0.2f; }
 
     // set position for HIL
-    void setHIL(uint8_t instance, GPS_Status status, uint64_t time_epoch_ms, 
+    void setHIL(uint8_t instance, GPS_Status status, uint64_t time_epoch_ms,
                 const Location &location, const Vector3f &velocity, uint8_t num_sats,
                 uint16_t hdop);
 
     // set accuracy for HIL
     void setHIL_Accuracy(uint8_t instance, float vdop, float hacc, float vacc, float sacc, bool _have_vertical_velocity, uint32_t sample_ms);
-    
+
     static const struct AP_Param::GroupInfo var_info[];
 
     // dataflash for logging, if available
@@ -335,7 +359,7 @@ public:
     AP_Int8 _gnss_mode[2];
     AP_Int8 _save_config;
     AP_Int8 _auto_config;
-    
+
     // handle sending of initialisation strings to the GPS
     void send_blob_start(uint8_t instance, const char *_blob, uint16_t size);
     void send_blob_update(uint8_t instance);

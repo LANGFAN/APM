@@ -110,13 +110,47 @@ void NavEKF2_core::realignYawGPS()
     Vector3f eulerAngles;
     stateStruct.quat.to_euler(eulerAngles.x, eulerAngles.y, eulerAngles.z);
 
-    if ((sq(gpsDataDelayed.vel.x) + sq(gpsDataDelayed.vel.y)) > 25.0f) {
+    if ((sq(gpsDataDelayed.vel.x) + sq(gpsDataDelayed.vel.y)) > 25.0f) {  // vehicle flight velocity greater than 5 m/s
 
         // calculate course yaw angle
         float velYaw = atan2f(stateStruct.velocity.y,stateStruct.velocity.x);
 
         // calculate course yaw angle from GPS velocity
         float gpsYaw = atan2f(gpsDataDelayed.vel.y,gpsDataDelayed.vel.x);
+
+        // Check the yaw angles for consistency
+        float yawErr = MAX(fabsf(wrap_PI(gpsYaw - velYaw)),MAX(fabsf(wrap_PI(gpsYaw - eulerAngles.z)),fabsf(wrap_PI(velYaw - eulerAngles.z))));
+
+        // If the angles disagree by more than 45 degrees and GPS innovations are large or no previous yaw alignment, we declare the magnetic yaw as bad
+        badMagYaw = ((yawErr > 0.7854f) && (velTestRatio > 1.0f) && (PV_AidingMode == AID_ABSOLUTE)) || !yawAlignComplete;
+
+        // correct yaw angle using GPS ground course if compass yaw bad
+        if (badMagYaw) {
+
+            // calculate new filter quaternion states from Euler angles
+            stateStruct.quat.from_euler(eulerAngles.x, eulerAngles.y, gpsYaw);
+
+            // send yaw alignment information to console
+            hal.console->printf("EKF2 IMU%u yaw aligned to GPS velocity\n",(unsigned)imu_index);
+
+            // zero the attitude covariances becasue the corelations will now be invalid
+            zeroAttCovOnly();
+
+            // reset tposition fusion timer to cause the states to be reset to the GPS on the next GPS fusion cycle
+            lastPosPassTime_ms = 0;
+        }
+
+        // record the yaw reset event
+        recordYawReset();
+
+        // clear any GPS yaw requests
+        gpsYawResetRequest = false;
+    }else if(useGpsHeading){
+        // calculate course yaw angle
+        float velYaw = atan2f(stateStruct.velocity.y,stateStruct.velocity.x);
+
+        // if using differential GPS which can measure body heading
+        float gpsYaw = _ahrs->get_gps().gps_heading();
 
         // Check the yaw angles for consistency
         float yawErr = MAX(fabsf(wrap_PI(gpsYaw - velYaw)),MAX(fabsf(wrap_PI(gpsYaw - eulerAngles.z)),fabsf(wrap_PI(velYaw - eulerAngles.z))));
@@ -244,7 +278,7 @@ void NavEKF2_core::SelectMagFusion()
 void NavEKF2_core::FuseMagnetometer()
 {
     hal.util->perf_begin(_perf_test[1]);
-    
+
     // declarations
     ftype &q0 = mag_state.q0;
     ftype &q1 = mag_state.q1;
@@ -267,7 +301,7 @@ void NavEKF2_core::FuseMagnetometer()
     Vector6 SK_MZ;
 
     hal.util->perf_end(_perf_test[1]);
-    
+
     // perform sequential fusion of magnetometer measurements.
     // this assumes that the errors in the different components are
     // uncorrelated which is not true, however in the absence of covariance

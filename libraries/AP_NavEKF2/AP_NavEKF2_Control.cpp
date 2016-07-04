@@ -62,7 +62,7 @@ void NavEKF2_core::setWindMagStateLearningMode()
     bool setWindInhibit = (!useAirspeed() && !assume_zero_sideslip()) || onGround || (PV_AidingMode == AID_NONE);
     if (!inhibitWindStates && setWindInhibit) {
         inhibitWindStates = true;
-    } else if (inhibitWindStates && !setWindInhibit) {
+    } else if (inhibitWindStates && !setWindInhibit) {  // this will happen after armed, see detectFlight() for detail
         inhibitWindStates = false;
         // set states and variances
         if (yawAlignComplete && useAirspeed()) {
@@ -109,7 +109,7 @@ void NavEKF2_core::setWindMagStateLearningMode()
     bool setMagInhibit = !magCalRequested || magCalDenied;
     if (!inhibitMagStates && setMagInhibit) {
         inhibitMagStates = true;
-    } else if (inhibitMagStates && !setMagInhibit) {
+    } else if (inhibitMagStates && !setMagInhibit) {  // after armed
         inhibitMagStates = false;
         // when commencing use of magnetic field states, set the variances equal to the observation uncertainty
         for (uint8_t index=16; index<=21; index++) {
@@ -151,7 +151,7 @@ void NavEKF2_core::setAidingMode()
     bool useFlowAiding = (frontend->_fusionModeGPS == 3) && optFlowDataPresent();
     // Start aiding if we have a source of aiding data and the filter attitude algnment is complete
     // Latch to on
-    isAiding = ((readyToUseGPS() || useFlowAiding) && filterIsStable) || isAiding;
+    isAiding = ((readyToUseGPS() || useFlowAiding) && filterIsStable) || isAiding;    // after isAiding set to be true, how to reset it??
 
     // check to see if we are starting or stopping aiding and set states and modes as required
     if (isAiding != prevIsAiding) {
