@@ -47,6 +47,7 @@
  #define HIL_MODE        HIL_MODE_DISABLED
 #endif
 
+// #define GPS_HEADING  DISABLED
 #define MAGNETOMETER ENABLED
 
 // run at 400Hz on all systems

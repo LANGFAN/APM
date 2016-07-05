@@ -147,7 +147,7 @@ void NavEKF2_core::readMagData()
 {
     if (!_ahrs->get_compass()) {
         allMagSensorsFailed = true;
-        return;        
+        return;
     }
     // If we are a vehicle with a sideslip constraint to aid yaw estimation and we have timed out on our last avialable
     // magnetometer, then declare the magnetometers as failed for this flight
@@ -405,6 +405,13 @@ void NavEKF2_core::readGpsData()
                 useGpsVertVel = true;
             } else {
                 useGpsVertVel = false;
+            }
+
+            // Check if GPS can output vehicle heading and realign yaw with gpsHeading accordingly
+            if (_ahrs->get_gps().have_gps_heading() && frontend->_fusionModeGPS == 0) {
+                useGpsHeading = true;
+            } else {
+                useGpsHeading = false;
             }
 
             // Monitor quality of the GPS velocity data before and after alignment using separate checks
