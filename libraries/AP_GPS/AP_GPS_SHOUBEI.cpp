@@ -405,7 +405,7 @@ bool AP_GPS_SHOUBEI::_term_complete()
                 uint32_t now = AP_HAL::millis();
                 switch (_sentence_type) {
                 case _GPS_SENTENCE_HPR:
-                	state.gps_heading=(float)_new_gps_heading/100; //added by LSH     at here gps not good  the gps heading is  useless
+                	state.gps_heading= ToRad((float)_new_gps_heading/100); //added by LSH     at here gps not good  the gps heading is  useless
                 	break;
                 case _GPS_SENTENCE_RMC:
                     _last_RMC_ms = now;

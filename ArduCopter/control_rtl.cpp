@@ -274,6 +274,18 @@ void Copter::rtl_descent_start()
     set_auto_yaw_mode(AUTO_YAW_HOLD);
 }
 
+
+/*
+ *
+ *added by LSH
+void close_to_xy()
+{
+	pos_control.set_xy_target();
+	pos_control.calc_leash_length_xy();
+	pos_control.set_speed_xy();
+}
+*/
+
 // rtl_descent_run - implements the final descent to the RTL_ALT
 //      called by rtl_run at 100hz or more
 void Copter::rtl_descent_run()
@@ -328,6 +340,7 @@ void Copter::rtl_descent_run()
 
     // run loiter controller
     wp_nav.update_loiter(ekfGndSpdLimit, ekfNavVelGainScaler);
+
 
     // call z-axis position controller
     pos_control.set_alt_target_with_slew(rtl_path.descent_target.alt, G_Dt);
