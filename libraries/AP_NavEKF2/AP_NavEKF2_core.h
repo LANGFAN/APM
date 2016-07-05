@@ -352,6 +352,9 @@ private:
         Vector2f    pos;         // 0..1
         float       hgt;         // 2
         Vector3f    vel;         // 3..5
+        // #ifdef USE_GPS_DIFF_HEADING
+        // float       gps_yaw;
+        // #endif
         uint32_t    time_ms;     // 6
     };
 

@@ -221,6 +221,7 @@ void NavEKF2_core::SelectMagFusion()
     magDataToFuse = storedMag.recall(magDataDelayed,imuDataDelayed.time_ms);
 
     // Control reset of yaw and magnetic field states if we are using compass data
+    // if ((magDataToFuse && use_compass())  || (readyToUseGPS() && useGpsHeading)) {
     if (magDataToFuse && use_compass()) {
         controlMagYawReset();
     }
@@ -258,7 +259,7 @@ void NavEKF2_core::SelectMagFusion()
     // If we have no magnetometer and are on the ground, fuse in a synthetic heading measurement to prevent the
     // filter covariances from becoming badly conditioned
     if (!use_compass()) {
-        if (onGround && (imuSampleTime_ms - lastSynthYawTime_ms > 1000)) {
+        if ((onGround || useGpsHeading) && (imuSampleTime_ms - lastSynthYawTime_ms > 1000)) {
             fuseEulerYaw();
             magTestRatio.zero();
             yawTestRatio = 0.0f;
@@ -808,7 +809,9 @@ void NavEKF2_core::fuseEulerYaw()
     float measured_yaw;
     if (use_compass() && yawAlignComplete && magStateInitComplete) {
         measured_yaw = wrap_PI(-atan2f(magMeasNED.y, magMeasNED.x) + _ahrs->get_compass()->get_declination());
-    } else {
+    } else if(useGpsHeading){
+        measured_yaw = _ahrs->get_gps().gps_heading();
+    }else {
         measured_yaw = predicted_yaw;
     }
 
