@@ -114,8 +114,8 @@ public:
         Location location;                  ///< last fix location
         float ground_speed;                 ///< ground speed in m/sec
         float ground_course;                ///< ground course in degrees
-				float gps_heading;									///< body heading measured by differential gps, such as UN237
-				uint16_t hdop;                      ///< horizontal dilution of precision in cm
+        float gps_heading;									///< body heading measured by differential gps, such as UN237
+		uint16_t hdop;                      ///< horizontal dilution of precision in cm
         uint16_t vdop;                      ///< vertical dilution of precision in cm
         uint8_t num_sats;                   ///< Number of visible satellites
         Vector3f velocity;                  ///< 3D velocitiy in m/s, in NED format

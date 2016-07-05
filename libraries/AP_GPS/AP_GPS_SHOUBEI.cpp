@@ -406,6 +406,11 @@ bool AP_GPS_SHOUBEI::_term_complete()
                 switch (_sentence_type) {
                 case _GPS_SENTENCE_HPR:
                 	state.gps_heading= ToRad((float)_new_gps_heading/100); //added by LSH     at here gps not good  the gps heading is  useless
+                	if(state.status >AP_GPS::GPS_OK_FIX_2D) {
+                		state.have_gps_heading=true;
+                	}else{
+                		state.have_gps_heading=false;
+                	}
                 	break;
                 case _GPS_SENTENCE_RMC:
                     _last_RMC_ms = now;
