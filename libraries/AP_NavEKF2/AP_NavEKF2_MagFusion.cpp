@@ -260,14 +260,11 @@ void NavEKF2_core::SelectMagFusion()
     // If we have no magnetometer and are on the ground, fuse in a synthetic heading measurement to prevent the
     // filter covariances from becoming badly conditioned
     if (!use_compass()) {
-        if (onGround && (imuSampleTime_ms - lastSynthYawTime_ms > 1000)) {
+        if ((onGround && (imuSampleTime_ms - lastSynthYawTime_ms > 1000)) || useGpsHeading) {
             fuseEulerYaw();
             magTestRatio.zero();
             yawTestRatio = 0.0f;
             lastSynthYawTime_ms = imuSampleTime_ms;
-        }else if(useGpsHeading){
-          fuseEulerYaw();
-          magTestRatio.zero();
         }
     }
 

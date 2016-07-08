@@ -63,6 +63,7 @@ extern const AP_HAL::HAL& hal;
 	"$JOFF\r\n"\
 	"$JASC,GPGGA,20\r\n"\
 	"$JASC,GPVTG,5\r\n"\
+	"$JASC,GPHPR,5\r\n"\
 	"$JBIN,1,5\r\n"\
 	"$JBIN,2,5\r\n"\
 	"$JSAVE\r\n"
@@ -380,7 +381,7 @@ bool AP_GPS_SHOUBEI::_have_new_message()
         now - _last_GGA_ms > 150) {
         return false;
     }
-    if (_last_VTG_ms != 0 && 
+    if (_last_VTG_ms != 0 &&
         now - _last_VTG_ms > 150) {
         return false;
     }
@@ -408,6 +409,7 @@ bool AP_GPS_SHOUBEI::_term_complete()
                 	state.gps_heading= ToRad((float)_new_gps_heading/100); //added by LSH     at here gps not good  the gps heading is  useless
                 	if(state.status >AP_GPS::GPS_OK_FIX_2D) {
                 		state.have_gps_heading=true;
+										GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_WARNING, "GPS Yaw %f", state.gps_heading);
                 	}else{
                 		state.have_gps_heading=false;
                 	}
