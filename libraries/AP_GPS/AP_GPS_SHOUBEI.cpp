@@ -402,14 +402,15 @@ bool AP_GPS_SHOUBEI::_term_complete()
     if (_is_checksum_term) {
         uint8_t checksum = 16 * _from_hex(_term[0]) + _from_hex(_term[1]);
         if (checksum == _parity) {
-            if (_gps_data_good) {
+            if (_gps_data_good||_sentence_type==_GPS_SENTENCE_HPR) {
                 uint32_t now = AP_HAL::millis();
                 switch (_sentence_type) {
                 case _GPS_SENTENCE_HPR:
+                	//GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_WARNING, "GPS Yaw %f", state.gps_heading);
                 	state.gps_heading= ToRad((float)_new_gps_heading/100); //added by LSH     at here gps not good  the gps heading is  useless
                 	if(state.status >AP_GPS::GPS_OK_FIX_2D) {
                 		state.have_gps_heading=true;
-										GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_WARNING, "GPS Yaw %f", state.gps_heading);
+                		//GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_WARNING, "have_gps_heading  %d", state.have_gps_heading);
                 	}else{
                 		state.have_gps_heading=false;
                 	}
