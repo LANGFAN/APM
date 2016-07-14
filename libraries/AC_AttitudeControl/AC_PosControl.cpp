@@ -871,7 +871,7 @@ void AC_PosControl::rate_to_accel_xy(float dt, float ekfNavVelGainScaler)
     	if (!_flags.freeze_ff_xy) {
     		_accel_feedforward.x = (_vel_target.x - _vel_last.x)/dt;
     		_accel_feedforward.y = (_vel_target.y - _vel_last.y)/dt;
-        } else {
+      } else {
     		// stop the feed forward being calculated during a known discontinuity
     		_flags.freeze_ff_xy = false;
     	}

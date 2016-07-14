@@ -82,7 +82,7 @@ bool NavEKF2_core::setup_core(NavEKF2 *_frontend, uint8_t _imu_index, uint8_t _c
     }
     if(!storedBaro.init(OBS_BUFFER_LENGTH)) {
         return false;
-    } 
+    }
     if(!storedTAS.init(OBS_BUFFER_LENGTH)) {
         return false;
     }
@@ -101,7 +101,7 @@ bool NavEKF2_core::setup_core(NavEKF2 *_frontend, uint8_t _imu_index, uint8_t _c
 
     return true;
 }
-    
+
 
 /********************************************************
 *                   INIT FUNCTIONS                      *
@@ -258,6 +258,8 @@ void NavEKF2_core::InitialiseVariables()
     magStateInitComplete = false;
     magYawResetRequest = false;
     gpsYawResetRequest = false;
+    useGpsHeading = false;
+    badGpsYaw = false;
 
     // zero data buffers
     storedIMU.reset();
