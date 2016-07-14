@@ -1,7 +1,7 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
 #include "Copter.h"
-
+#include <GCS_MAVLink/GCS.h>
 /*
  * control_rtl.pde - init and run calls for RTL flight mode
  *
@@ -473,7 +473,7 @@ void Copter::rtl_build_path(bool terrain_following_allowed)
 #else
     rtl_path.return_target = ahrs.get_home();
 #endif
-
+    GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "Home(loc*10^7): lat %d, lng %d", rtl_path.origin_point.lat,rtl_path.origin_point.lng);
     // compute return altitude
     rtl_compute_return_alt(rtl_path.origin_point, rtl_path.return_target, terrain_following_allowed);
 

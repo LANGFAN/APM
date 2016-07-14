@@ -8,6 +8,8 @@
 #include <AP_AHRS/AP_AHRS_NavEKF.h>
 #include <AP_Terrain/AP_Terrain.h>
 
+#include <GCS_MAVLink/GCS.h>
+
 extern const AP_HAL::HAL& hal;
 
 const AP_AHRS_NavEKF *Location_Class::_ahrs = NULL;
@@ -202,6 +204,7 @@ bool Location_Class::get_vector_xy_from_origin_NEU(Vector3f &vec_neu) const
     if (!_ahrs->get_origin(ekf_origin)) {
         return false;
     }
+    GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "EKF_origin: lat %d, lng %d", ekf_origin.lat,ekf_origin.lng);
     vec_neu.x = (lat-ekf_origin.lat) * LATLON_TO_CM;
     vec_neu.y = (lng-ekf_origin.lng) * LATLON_TO_CM * longitude_scale(ekf_origin);
     return true;
