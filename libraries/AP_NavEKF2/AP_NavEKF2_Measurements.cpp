@@ -408,11 +408,12 @@ void NavEKF2_core::readGpsData()
             }
 
             // Check if GPS can output vehicle heading and realign yaw with gpsHeading accordingly
-            if (_ahrs->get_gps().have_gps_heading() && frontend->_fusionModeGPS == 0) {
+            if (_ahrs->get_gps().have_gps_heading() && frontend->_fusionModeGPS == 0 && !badGpsYaw) {
                 useGpsHeading = true;
-            } else {
-                useGpsHeading = false;
             }
+            //else {
+            //     useGpsHeading = false;
+            // }
 
             // Monitor quality of the GPS velocity data before and after alignment using separate checks
             if (PV_AidingMode != AID_ABSOLUTE) {

@@ -225,9 +225,12 @@ void NavEKF2_core::checkAttitudeAlignmentStatus()
 
     // submit yaw and magnetic field reset requests depending on whether we have compass data
     if (tiltAlignComplete && !yawAlignComplete) {
-        if (use_compass()) {
+        if (use_compass() && !useGpsHeading) {
             magYawResetRequest = true;
             gpsYawResetRequest = false;
+        } else if(useGpsHeading){
+            magYawResetRequest = true;
+            gpsYawResetRequest = true;
         } else {
             magYawResetRequest = false;
             gpsYawResetRequest = true;

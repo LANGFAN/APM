@@ -731,6 +731,7 @@ private:
     float posDownAtTakeoff;         // flight vehicle vertical position at arming used as a reference point
     bool useGpsVertVel;             // true if GPS vertical velocity should be used
     bool useGpsHeading;             // true if vehicle heading can be measured by diff gps
+    bool badGpsYaw;                 // true if great yaw error caused by using diff gps heading or gps accuracy problem exists 
     float yawResetAngle;            // Change in yaw angle due to last in-flight yaw reset in radians. A positive value means the yaw angle has increased.
     uint32_t lastYawReset_ms;       // System time at which the last yaw reset occurred. Returned by getLastYawResetAngle
     Vector3f tiltErrVec;            // Vector of most recent attitude error correction from Vel,Pos fusion
