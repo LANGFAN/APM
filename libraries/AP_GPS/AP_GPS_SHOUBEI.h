@@ -144,8 +144,12 @@ private:
     int32_t _new_speed;                                                 ///< speed parsed from a term
     int32_t _new_course;                                        ///< course parsed from a term
     int32_t _new_gps_heading;							///added by LSH   used for gps heading
+    int32_t _new_gps_pitch;							///added by LSH   used for gps heading
+    int32_t _new_gps_roll;							///added by LSH   used for gps heading
+    uint8_t _new_gps_heading_mode;
     uint16_t _new_hdop;                                                 ///< HDOP parsed from a term
     uint8_t _new_satellite_count;                       ///< satellite count parsed from a term
+
 
 
     uint32_t _last_RMC_ms = 0;
