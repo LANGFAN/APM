@@ -237,7 +237,8 @@ void NavEKF2_core::SelectMagFusion()
       fuseEulerYaw();
       // if yawTestRatio larger than 1.0f for about 5000ms, disable diff GPS heading
       if(!badGpsYaw){
-        if(yawTestRatio < 1.0f){
+        // if diff gps heading have great error, is yawTestRatio larger than 1.0f?? test it
+        if(yawTestRatio < 1.0f && !faultStatus.bad_yaw){
           lastSynthYawTime_ms = imuSampleTime_ms;
         }
         if(imuSampleTime_ms - lastSynthYawTime_ms > 5000){
@@ -826,18 +827,18 @@ void NavEKF2_core::fuseEulerYaw()
     // If we can't use compass data, set the  meaurement to the predicted
     // to prevent uncontrolled variance growth whilst on ground without magnetometer
     float measured_yaw;
-    if (use_compass() && yawAlignComplete && magStateInitComplete) {
+    if (use_compass() && yawAlignComplete && magStateInitComplete && !useGpsHeading) {
         measured_yaw = wrap_PI(-atan2f(magMeasNED.y, magMeasNED.x) + _ahrs->get_compass()->get_declination());
     } else if(useGpsHeading){
         measured_yaw = wrap_PI(_ahrs->get_gps().gps_heading());
-        GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "GPS Yaw %f", measured_yaw);
+        // GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "GPS Yaw %f", measured_yaw);
     }else {
         measured_yaw = predicted_yaw;
     }
 
     // Calculate the innovation
     float innovation = wrap_PI(predicted_yaw - measured_yaw);
-    GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "Yaw Error %f", innovation);
+    // GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "Yaw Error %f", innovation);
 
     // Copy raw value to output variable used for data logging
     innovYaw = innovation;
