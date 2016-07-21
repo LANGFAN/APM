@@ -1,7 +1,7 @@
 // -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
 #include "Copter.h"
-
+#include <GCS_MAVLink/GCS.h>
 /*
  * the home_state has a number of possible values (see enum HomeState in defines.h's)
  *   HOME_UNSET             = home is not set, no GPS positions yet received
@@ -19,10 +19,10 @@ void Copter::update_home_from_EKF()
 
     // special logic if home is set in-flight
     // if (motors.armed()) {
-    //     set_home_to_current_location_inflight();
+        set_home_to_current_location_inflight();
     // } else {
         // move home to current ekf location (this will set home_state to HOME_SET)
-        set_home_to_current_location_inflight();
+        // set_home_to_current_location();
     // }
 }
 
@@ -32,8 +32,8 @@ void Copter::set_home_to_current_location_inflight() {
     Location temp_loc;
     if (inertial_nav.get_location(temp_loc)) {
         const struct Location &ekf_origin = inertial_nav.get_origin();
-        temp_loc.alt = ekf_origin.alt;
-        set_home(temp_loc);
+        // temp_loc.alt = ekf_origin.alt;
+        set_home(ekf_origin);
     }
 }
 
@@ -80,6 +80,7 @@ bool Copter::set_home(const Location& loc)
 
     // set ahrs home (used for RTL)
     ahrs.set_home(loc);
+    GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "set home: lat %d, lng %d", loc.lat,loc.lng);
 
     // init inav and compass declination
     if (ap.home_state == HOME_UNSET) {
