@@ -323,6 +323,7 @@ private:
 #endif
 
     MOTOR_CLASS motors;
+    uint32_t motors_armed_last_time;
 
     // GPS variables
     // Sometimes we need to remove the scaling for distance calcs
