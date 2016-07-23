@@ -255,7 +255,6 @@ void Copter::init_disarm_motors()
     ahrs.set_correct_centrifugal(false);
     hal.util->set_soft_armed(false);
 
-    hal.rcout->force_safety_on();//added by LSH
 }
 
 // motors_output - send output to motors library which will adjust and send to ESCs and servos
