@@ -329,6 +329,7 @@ private:
     float scaleLongDown;
 
     uint32_t motors_armed_last_time;
+    uint32_t safety_armed_last_time;
     // Location & Navigation
     int32_t wp_bearing;
     // The location of home in relation to the copter in centi-degrees
