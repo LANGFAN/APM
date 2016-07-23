@@ -473,7 +473,7 @@ void Copter::rtl_build_path(bool terrain_following_allowed)
 #else
     rtl_path.return_target = ahrs.get_home();
 #endif
-    GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "Home(loc*10^7): lat %d, lng %d", rtl_path.origin_point.lat,rtl_path.origin_point.lng);
+    GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "Home(loc*10^7): lat %d, lng %d", rtl_path.return_target.lat,rtl_path.return_target.lng);
     // compute return altitude
     rtl_compute_return_alt(rtl_path.origin_point, rtl_path.return_target, terrain_following_allowed);
 
