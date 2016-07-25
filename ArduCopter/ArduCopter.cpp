@@ -249,6 +249,7 @@ void Copter::fast_loop()
     // IMU DCM Algorithm
     // --------------------
     read_AHRS();
+#if 0
     static int tmpnum=0;
     tmpnum++;
     if(tmpnum>400){
@@ -257,6 +258,7 @@ void Copter::fast_loop()
 		tmploc=gps.location();
 		GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_WARNING,"lon %d  lat %d",tmploc.lng,tmploc.lat);
 	}
+#endif
     // run low level rate controllers that only require IMU data
     attitude_control.rate_controller_run();
     
