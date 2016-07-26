@@ -345,6 +345,9 @@ private:
 
     // Guided
     GuidedMode guided_mode;  // controls which controller is run (pos or vel)
+    uint32_t guided_loiter_start_time;			//added by LSH
+    bool guided_reached_takeoff_destination;		//added by LSH
+    bool guided_loiter_complete;    //added by LSH
 
     // RTL
     RTLState rtl_state;  // records state of rtl (initial climb, returning home, etc)
@@ -802,6 +805,10 @@ private:
     void guided_limit_set(uint32_t timeout_ms, float alt_min_cm, float alt_max_cm, float horiz_max_cm);
     void guided_limit_init_time_and_pos();
     bool guided_limit_check();
+    void guided_loiter_start();
+    void guided_loiter_run();
+    void guided_goto_desire_target_start();
+
     bool land_init(bool ignore_checks);
     void land_run();
     void land_gps_run();
