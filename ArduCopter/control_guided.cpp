@@ -78,11 +78,8 @@ bool Copter::guided_takeoff_start(float final_alt_above_home)
 
 void Copter::guided_loiter_start()
 {
-	if(guided_reached_takeoff_destination)
-	{
 		guided_mode=Guided_Loiter;
 		guided_loiter_start_time=AP_HAL::millis();
-	}
 }
 
 void Copter::guided_loiter_run()
@@ -135,6 +132,7 @@ void Copter::guided_loiter_run()
 	    if ((millis() - guided_loiter_start_time) >= 10000) {
 	    	guided_loiter_complete=true;
 	    	guided_goto_desire_target_start();
+			guided_loiter_complete=false;
 	    }
 }
 
@@ -146,7 +144,6 @@ void Copter::guided_goto_desire_target_start()
 	guided_desire_target.z=10;
 	if(guided_loiter_complete){
 		guided_set_destination(guided_desire_target);
-		guided_loiter_complete=false;
 	}
 }
 
@@ -425,6 +422,7 @@ void Copter::guided_takeoff_run()
     // set motors to full range
     motors.set_desired_spool_state(AP_Motors::DESIRED_THROTTLE_UNLIMITED);
     guided_reached_takeoff_destination=wp_nav.update_wpnav();
+
     // run waypoint controller
     failsafe_terrain_set_status(guided_reached_takeoff_destination);
 //    failsafe_terrain_set_status(wp_nav.update_wpnav());
@@ -434,6 +432,10 @@ void Copter::guided_takeoff_run()
 
     // roll & pitch from waypoint controller, yaw rate from pilot
     attitude_control.input_euler_angle_roll_pitch_euler_rate_yaw(wp_nav.get_roll(), wp_nav.get_pitch(), target_yaw_rate);
+    if(guided_reached_takeoff_destination){
+    	guided_loiter_start();
+    	guided_reached_takeoff_destination=false;
+    }
 }
 
 
