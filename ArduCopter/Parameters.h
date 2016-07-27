@@ -105,6 +105,9 @@ public:
         k_param_sprayer,
         k_param_angle_max,
         k_param_gps_hdop_good,
+        k_param_guided_loiter_time,
+        k_param_guided_desire_target,
+        k_param_guided_takeoff_alt,
         k_param_battery,
         k_param_fs_batt_mah,
         k_param_angle_rate_max,         // remove
@@ -396,6 +399,10 @@ public:
 
     AP_Int8         failsafe_gcs;               // ground station failsafe behavior
     AP_Int16        gps_hdop_good;              // GPS Hdop value at or below this value represent a good position
+
+    AP_Int32		guided_loiter_time;
+    AP_Int32		guided_desire_target;
+    AP_Int32		guided_takeoff_alt;
 
     AP_Int8         compass_enabled;
     AP_Int8         super_simple;

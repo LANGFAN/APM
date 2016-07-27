@@ -129,7 +129,7 @@ void Copter::guided_loiter_run()
 	    }
 
 	    // check if we've completed this stage of autotakeoff
-	    if ((millis() - guided_loiter_start_time) >= 10000) {
+	    if ((millis() - guided_loiter_start_time) >(uint32_t) g.guided_loiter_time*1000) {
 	    	guided_loiter_complete=true;
 	    	guided_goto_desire_target_start();
 			guided_loiter_complete=false;
@@ -141,10 +141,8 @@ void Copter::guided_goto_desire_target_start()
 	Vector3f guided_desire_target;
 	guided_desire_target.x=0;
 	guided_desire_target.y=0;
-	guided_desire_target.z=10;
-	if(guided_loiter_complete){
-		guided_set_destination(guided_desire_target);
-	}
+	guided_desire_target.z=100*MAX(g.guided_desire_target,g.guided_takeoff_alt);
+	guided_set_destination(guided_desire_target);
 }
 
 
