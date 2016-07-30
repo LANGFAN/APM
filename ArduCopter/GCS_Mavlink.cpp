@@ -1111,7 +1111,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         // allow override of RC channel values for HIL
         // or for complete GCS control of switch position
         // and RC PWM values.
-        if(msg->sysid != copter.g.sysid_my_gcs || msg->sysid != copter.g.sysid_my_rc) break;       // Only accept control from our gcs
+        if(msg->sysid != copter.g.sysid_my_gcs &&  msg->sysid != copter.g.sysid_my_rc) break;       // Only accept control from our gcs
         mavlink_rc_channels_override_t packet;
         int16_t v[8];
         mavlink_msg_rc_channels_override_decode(msg, &packet);
