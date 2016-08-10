@@ -228,55 +228,55 @@ AP_GPS_SHOUBEI::handle_BIN(void)
 	uint16_t bin_id=0;
 	 memcpy((void*)(&bin_id),&buf_bin[3],2);
 //	 GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_WARNING,"msgod %d",bin_id);
-		        	 switch(bin_id)
-		        	 {
-		        	 case 1:{
-		        		 memcpy((void*)(&BIN1_msg),&buf_bin[7],sizeof(struct BIN1_msg_st));
+	 switch(bin_id)
+	 {
+	 case 1:{
+		 memcpy((void*)(&BIN1_msg),&buf_bin[7],sizeof(struct BIN1_msg_st));
 //		        		 GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_WARNING,"sizeof %d",sizeof(struct BIN1_msg_st));
 //		        			state.num_sats=BIN1_msg.NumOfSats; ///< Number of visible satelites
 //							state.location.alt=BIN1_msg.Height*100; //Altitude in centimeters (meters * 100)
-							state.location.lat= (int32_t)(BIN1_msg.Latitude*1e7);
-							state.location.lng= (int32_t)(BIN1_msg.Longitude*1e7);
-							state.have_vertical_velocity=true;
-							state.velocity.z = -BIN1_msg.VUp;  //the up velocity is negative
-							state.velocity.x= BIN1_msg.VNorth;
-							state.velocity.y= BIN1_msg.VEast;
-							state.time_week=BIN1_msg.GPSWeek;
-							state.time_week_ms=BIN1_msg.GPSTimeOfWeek*1000;
-							switch(BIN1_msg.NavMode)
-							{
-							case 0:
-								state.status=AP_GPS::NO_FIX;
-								break;
-							case 1:
-								state.status=AP_GPS::GPS_OK_FIX_2D;
-								break;
-							case 2:
-								state.status=AP_GPS::GPS_OK_FIX_3D;
-								break;
-							case 5:
-								state.status=AP_GPS::GPS_OK_FIX_3D_DGPS;
-								break;
-							case 6:
-								state.status=AP_GPS::GPS_OK_FIX_3D_RTK;
-								break;
-							default: break;
-							}
-							 if(state.status>2){
-								 state.last_gps_time_ms=AP_HAL::millis();
-							 }
-		        		 break;
-		        	 }
+			state.location.lat= (int32_t)(BIN1_msg.Latitude*1e7);
+			state.location.lng= (int32_t)(BIN1_msg.Longitude*1e7);
+			state.have_vertical_velocity=true;
+			state.velocity.z = -BIN1_msg.VUp;  //the up velocity is negative
+			state.velocity.x= BIN1_msg.VNorth;
+			state.velocity.y= BIN1_msg.VEast;
+			state.time_week=BIN1_msg.GPSWeek;
+			state.time_week_ms=BIN1_msg.GPSTimeOfWeek*1000;
+			switch(BIN1_msg.NavMode)
+			{
+			case 0:
+				state.status=AP_GPS::NO_FIX;
+				break;
+			case 1:
+				state.status=AP_GPS::GPS_OK_FIX_2D;
+				break;
+			case 2:
+				state.status=AP_GPS::GPS_OK_FIX_3D;
+				break;
+			case 5:
+				state.status=AP_GPS::GPS_OK_FIX_3D_DGPS;
+				break;
+			case 6:
+				state.status=AP_GPS::GPS_OK_FIX_3D_RTK;
+				break;
+			default: break;
+			}
+			 if(state.status>2){
+				 state.last_gps_time_ms=AP_HAL::millis();
+			 }
+		 break;
+	 }
 
-		        	 case 2:{
-		        		 memcpy((void*)(&BIN2_msg),&buf_bin[7],sizeof(struct BIN2_msg_st));
+	 case 2:{
+		 memcpy((void*)(&BIN2_msg),&buf_bin[7],sizeof(struct BIN2_msg_st));
 //		        		 GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_WARNING,"sizeof %d",sizeof(struct BIN2_msg_st));
-		        		 state.hdop=BIN2_msg.HDOPTimes10*10;
-		        		 state.vdop=BIN2_msg.VDOPTimes10*10;
-		        		 break;
-		        	 }
-		        	 default: break;
-		        	 }
+		 state.hdop=BIN2_msg.HDOPTimes10*10;
+		 state.vdop=BIN2_msg.VDOPTimes10*10;
+		 break;
+	 }
+	 default: break;
+	 }
 		        	 return true;
 }
 
