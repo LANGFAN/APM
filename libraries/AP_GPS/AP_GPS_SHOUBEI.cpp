@@ -61,10 +61,10 @@ extern const AP_HAL::HAL& hal;
 */
 #define UniStrong_INIT_MSG\
 	"$JOFF\r\n"\
-	"$JASC,GPGGA,20\r\n"\
-	"$JASC,GPVTG,5\r\n"\
-	"$JASC,GPHPR,5\r\n"\
-	"$JBIN,1,5\r\n"\
+	"$JASC,GPGGA,10\r\n"\
+	"$JASC,GPVTG,10\r\n"\
+	"$JASC,GPHPR,15\r\n"\
+	"$JBIN,1,15\r\n"\
 	"$JBIN,2,5\r\n"\
 	"$JSAVE\r\n"
 
@@ -235,8 +235,8 @@ AP_GPS_SHOUBEI::handle_BIN(void)
 //		        		 GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_WARNING,"sizeof %d",sizeof(struct BIN1_msg_st));
 //		        			state.num_sats=BIN1_msg.NumOfSats; ///< Number of visible satelites
 //							state.location.alt=BIN1_msg.Height*100; //Altitude in centimeters (meters * 100)
-//							state.location.lat=BIN1_msg.Latitude*1e7;
-//							state.location.lng=BIN1_msg.Longitude*1e7;
+							state.location.lat= (int32_t)(BIN1_msg.Latitude*1e7);
+							state.location.lng= (int32_t)(BIN1_msg.Longitude*1e7);
 							state.have_vertical_velocity=true;
 							state.velocity.z = -BIN1_msg.VUp;  //the up velocity is negative
 							state.velocity.x= BIN1_msg.VNorth;
