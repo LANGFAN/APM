@@ -105,6 +105,9 @@ public:
         k_param_sprayer,
         k_param_angle_max,
         k_param_gps_hdop_good,
+        k_param_guided_loiter_time,
+        k_param_guided_desire_target,
+        k_param_guided_takeoff_alt,
         k_param_battery,
         k_param_fs_batt_mah,
         k_param_angle_rate_max,         // remove
@@ -201,6 +204,7 @@ public:
         k_param_gcs1,
         k_param_sysid_this_mav,
         k_param_sysid_my_gcs,
+		k_param_sysid_my_rc,   //added by LSH
         k_param_serial1_baud_old, // deprecated
         k_param_telem_delay,
         k_param_gcs2,
@@ -214,6 +218,7 @@ public:
         k_param_takeoff_trigger_dz,
         k_param_gcs3,
         k_param_gcs_pid_mask,    // 126
+
 
         //
         // 135 : reserved for Solo until features merged with master
@@ -377,6 +382,7 @@ public:
     //
     AP_Int16        sysid_this_mav;
     AP_Int16        sysid_my_gcs;
+    AP_Int16        sysid_my_rc;  //added by LSH
     AP_Int8         telem_delay;
 #if CLI_ENABLED == ENABLED
     AP_Int8         cli_enabled;
@@ -399,7 +405,11 @@ public:
     AP_Int8         failsafe_gcs;               // ground station failsafe behavior
     AP_Int16        gps_hdop_good;              // GPS Hdop value at or below this value represent a good position
 
-    // AP_Int8         gps_yaw_enabled;   //  check if using vehicle heading measured by differential gps
+
+    AP_Int32		guided_loiter_time;
+    AP_Int32		guided_desire_target;
+    AP_Int32		guided_takeoff_alt;
+
     AP_Int8         compass_enabled;
     AP_Int8         super_simple;
     AP_Int16        rtl_alt_final;

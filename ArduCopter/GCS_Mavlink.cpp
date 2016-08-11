@@ -980,7 +980,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
     case MAVLINK_MSG_ID_HEARTBEAT:      // MAV ID: 0
     {
         // We keep track of the last time we received a heartbeat from our GCS for failsafe purposes
-        if(msg->sysid != copter.g.sysid_my_gcs) break;
+        if(msg->sysid != copter.g.sysid_my_gcs || msg->sysid != copter.g.sysid_my_rc) break;
         copter.failsafe.last_heartbeat_ms = AP_HAL::millis();
         copter.pmTest1++;
         break;
@@ -1111,7 +1111,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         // allow override of RC channel values for HIL
         // or for complete GCS control of switch position
         // and RC PWM values.
-        if(msg->sysid != copter.g.sysid_my_gcs) break;                         // Only accept control from our gcs
+        if(msg->sysid != copter.g.sysid_my_gcs &&  msg->sysid != copter.g.sysid_my_rc) break;       // Only accept control from our gcs
         mavlink_rc_channels_override_t packet;
         int16_t v[8];
         mavlink_msg_rc_channels_override_decode(msg, &packet);
@@ -1194,8 +1194,8 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             // param5 : latitude    (not supported)
             // param6 : longitude   (not supported)
             // param7 : altitude [metres]
-
-            float takeoff_alt = packet.param7 * 100;      // Convert m to cm
+        	float takeoff_alt = copter.g.guided_takeoff_alt * 100;      // Convert m to cm
+          //  float takeoff_alt = packet.param7 * 100;      // Convert m to cm
 
             if(copter.do_user_takeoff(takeoff_alt, is_zero(packet.param3))) {
                 result = MAV_RESULT_ACCEPTED;
