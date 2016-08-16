@@ -79,7 +79,8 @@ bool Copter::set_home(const Location& loc)
     }
 
     // set ahrs home (used for RTL)
-    GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "set home: lat %d, lng %d", loc.lat,loc.lng);
+    // GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "set home: lat %d, lng %d", loc.lat,loc.lng);
+
     ahrs.set_home(loc);
     // init inav and compass declination
     if (ap.home_state == HOME_UNSET) {

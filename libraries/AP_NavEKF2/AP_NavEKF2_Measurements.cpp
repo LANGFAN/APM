@@ -428,11 +428,13 @@ void NavEKF2_core::readGpsData()
 
             // Set the EKF origin and magnetic field declination if not previously set  and GPS checks have passed
             if (gpsGoodToAlign && !validOrigin) {
+              if(_ahrs->get_gps().status() >= AP_GPS::GPS_OK_FIX_3D_RTK){
                 setOrigin();
                 // Now we know the location we have an estimate for the magnetic field declination and adjust the earth field accordingly
                 alignMagStateDeclination();
                 // Set the height of the NED origin to ‘height of baro height datum relative to GPS height datum'
                 EKF_origin.alt = gpsloc.alt - baroDataNew.hgt;
+              }
             }
 
             // convert GPS measurements to local NED and save to buffer to be fused later if we have a valid origin
