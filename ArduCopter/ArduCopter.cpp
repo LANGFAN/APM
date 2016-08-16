@@ -74,6 +74,7 @@
  */
 
 #include "Copter.h"
+#include <GCS_MAVLink/GCS.h>
 
 #define SCHED_TASK(func, rate_hz, max_time_micros) SCHED_TASK_CLASS(Copter, &copter, func, rate_hz, max_time_micros)
 
@@ -248,7 +249,16 @@ void Copter::fast_loop()
     // IMU DCM Algorithm
     // --------------------
     read_AHRS();
-
+#if 0
+    static int tmpnum=0;
+    tmpnum++;
+    if(tmpnum>400){
+		tmpnum=0;
+		Location tmploc;
+		tmploc=gps.location();
+		GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_WARNING,"lon %d  lat %d",tmploc.lng,tmploc.lat);
+	}
+#endif
     // run low level rate controllers that only require IMU data
     attitude_control.rate_controller_run();
     

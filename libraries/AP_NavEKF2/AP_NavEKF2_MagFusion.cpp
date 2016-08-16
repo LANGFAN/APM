@@ -9,6 +9,7 @@
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_Vehicle/AP_Vehicle.h>
 
+#include <GCS_MAVLink/GCS.h>
 #include <stdio.h>
 
 extern const AP_HAL::HAL& hal;
@@ -29,7 +30,7 @@ void NavEKF2_core::controlMagYawReset()
     deltaQuat.to_axis_angle(deltaRotVec);
 
     // check if the spin rate is OK - high spin rates can cause angular alignment errors
-    bool angRateOK = deltaRotVec.length() < 0.1745f;
+    bool angRateOK = deltaRotVec.length() < 0.1745f;    // <10 deg/s
 
     // a flight reset is allowed if we are not spinning too fast and are in flight
     bool flightResetAllowed = angRateOK && inFlight;
@@ -55,7 +56,7 @@ void NavEKF2_core::controlMagYawReset()
     // Perform a reset of magnetic field states and reset yaw to corrected magnetic heading
     if (magYawResetRequest || magStateResetRequest) {
 
-        // gett he eeruler angles from the current state estimate
+        // get the euler angles from the current state estimate
         Vector3f eulerAngles;
         stateStruct.quat.to_euler(eulerAngles.x, eulerAngles.y, eulerAngles.z);
 
@@ -91,7 +92,7 @@ void NavEKF2_core::controlMagYawReset()
             // clear the yaw reset request flag
             magYawResetRequest = false;
         }
-}
+      }
 
     // Request an in-flight check of heading against GPS and reset if necessary
     // this can only be used by vehicles that can use a zero sideslip assumption (Planes)
@@ -110,7 +111,7 @@ void NavEKF2_core::realignYawGPS()
     Vector3f eulerAngles;
     stateStruct.quat.to_euler(eulerAngles.x, eulerAngles.y, eulerAngles.z);
 
-    if ((sq(gpsDataDelayed.vel.x) + sq(gpsDataDelayed.vel.y)) > 25.0f) {
+    if ((sq(gpsDataDelayed.vel.x) + sq(gpsDataDelayed.vel.y)) > 25.0f) {  // vehicle flight velocity greater than 5 m/s
 
         // calculate course yaw angle
         float velYaw = atan2f(stateStruct.velocity.y,stateStruct.velocity.x);
@@ -139,6 +140,40 @@ void NavEKF2_core::realignYawGPS()
             // reset tposition fusion timer to cause the states to be reset to the GPS on the next GPS fusion cycle
             lastPosPassTime_ms = 0;
         }
+
+        // record the yaw reset event
+        recordYawReset();
+
+        // clear any GPS yaw requests
+        gpsYawResetRequest = false;
+    }else if(useGpsHeading){
+        // calculate course yaw angle
+        // float velYaw = atan2f(stateStruct.velocity.y,stateStruct.velocity.x);
+
+        // if using differential GPS which can measure body heading
+        float gpsYaw = wrap_PI(_ahrs->get_gps().gps_heading());
+        // GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "GPS Yaw %f", gpsYaw);
+        // Check the yaw angles for consistency
+        // float yawErr = MAX(fabsf(wrap_PI(gpsYaw - velYaw)),MAX(fabsf(wrap_PI(gpsYaw - eulerAngles.z)),fabsf(wrap_PI(velYaw - eulerAngles.z))));
+
+        // If the angles disagree by more than 45 degrees and GPS innovations are large or no previous yaw alignment, we declare the magnetic yaw as bad
+        // badMagYaw = ((yawErr > 0.7854f) && (velTestRatio > 1.0f) && (PV_AidingMode == AID_ABSOLUTE)) || !yawAlignComplete;
+
+        // correct yaw angle using GPS ground course if compass yaw bad
+        // if (badMagYaw) {
+
+            // calculate new filter quaternion states from Euler angles
+            stateStruct.quat.from_euler(eulerAngles.x, eulerAngles.y, gpsYaw);
+
+            // send yaw alignment information to console
+            hal.console->printf("EKF2 IMU%u yaw aligned to GPS velocity\n",(unsigned)imu_index);
+
+            // zero the attitude covariances becasue the corelations will now be invalid
+            zeroAttCovOnly();
+
+            // reset tposition fusion timer to cause the states to be reset to the GPS on the next GPS fusion cycle
+            lastPosPassTime_ms = 0;
+        // }
 
         // record the yaw reset event
         recordYawReset();
@@ -186,14 +221,45 @@ void NavEKF2_core::SelectMagFusion()
     // check for availability of magnetometer data to fuse
     magDataToFuse = storedMag.recall(magDataDelayed,imuDataDelayed.time_ms);
 
+    // If we have no magnetometer and are on the ground, fuse in a synthetic heading measurement to prevent the
+    // filter covariances from becoming badly conditioned
+    if (!use_compass()) {
+        if (onGround && (imuSampleTime_ms - lastSynthYawTime_ms > 1000)) {
+            fuseEulerYaw();
+            magTestRatio.zero();
+            yawTestRatio = 0.0f;
+            lastSynthYawTime_ms = imuSampleTime_ms;
+        }
+    }
+
+    // or if we have diff GPS to measure vehicle heading, so using it first;
+    if(useGpsHeading){
+      fuseEulerYaw();
+      // if yawTestRatio larger than 1.0f for about 5000ms, disable diff GPS heading
+      if(!badGpsYaw){
+        // if diff gps heading have great error, is yawTestRatio larger than 1.0f?? test it
+        if(yawTestRatio < 1.0f && !faultStatus.bad_yaw){
+          lastSynthYawTime_ms = imuSampleTime_ms;
+        }
+        if(imuSampleTime_ms - lastSynthYawTime_ms > 5000){
+          badGpsYaw = true;
+          useGpsHeading = false;
+        }
+      }
+
+      magTestRatio.zero();
+      yawTestRatio = 0.0f;
+    }
+
     // Control reset of yaw and magnetic field states if we are using compass data
-    if (magDataToFuse && use_compass()) {
+    // if ((magDataToFuse && use_compass())  || (readyToUseGPS() && useGpsHeading)) {
+    if (magDataToFuse && use_compass() && !useGpsHeading) {
         controlMagYawReset();
     }
 
     // determine if conditions are right to start a new fusion cycle
     // wait until the EKF time horizon catches up with the measurement
-    bool dataReady = (magDataToFuse && statesInitialised && use_compass() && yawAlignComplete);
+    bool dataReady = (magDataToFuse && statesInitialised && use_compass() && yawAlignComplete && !useGpsHeading);
     if (dataReady) {
         // use the simple method of declination to maintain heading if we cannot use the magnetic field states
         if(inhibitMagStates || magStateResetRequest || !magStateInitComplete) {
@@ -221,17 +287,6 @@ void NavEKF2_core::SelectMagFusion()
         }
     }
 
-    // If we have no magnetometer and are on the ground, fuse in a synthetic heading measurement to prevent the
-    // filter covariances from becoming badly conditioned
-    if (!use_compass()) {
-        if (onGround && (imuSampleTime_ms - lastSynthYawTime_ms > 1000)) {
-            fuseEulerYaw();
-            magTestRatio.zero();
-            yawTestRatio = 0.0f;
-            lastSynthYawTime_ms = imuSampleTime_ms;
-        }
-    }
-
     // stop performance timer
     hal.util->perf_end(_perf_FuseMagnetometer);
 }
@@ -244,7 +299,7 @@ void NavEKF2_core::SelectMagFusion()
 void NavEKF2_core::FuseMagnetometer()
 {
     hal.util->perf_begin(_perf_test[1]);
-    
+
     // declarations
     ftype &q0 = mag_state.q0;
     ftype &q1 = mag_state.q1;
@@ -267,7 +322,7 @@ void NavEKF2_core::FuseMagnetometer()
     Vector6 SK_MZ;
 
     hal.util->perf_end(_perf_test[1]);
-    
+
     // perform sequential fusion of magnetometer measurements.
     // this assumes that the errors in the different components are
     // uncorrelated which is not true, however in the absence of covariance
@@ -772,14 +827,18 @@ void NavEKF2_core::fuseEulerYaw()
     // If we can't use compass data, set the  meaurement to the predicted
     // to prevent uncontrolled variance growth whilst on ground without magnetometer
     float measured_yaw;
-    if (use_compass() && yawAlignComplete && magStateInitComplete) {
+    if (use_compass() && yawAlignComplete && magStateInitComplete && !useGpsHeading) {
         measured_yaw = wrap_PI(-atan2f(magMeasNED.y, magMeasNED.x) + _ahrs->get_compass()->get_declination());
-    } else {
+    } else if(useGpsHeading){
+        measured_yaw = wrap_PI(_ahrs->get_gps().gps_heading());
+        // GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "GPS Yaw %f", measured_yaw);
+    }else {
         measured_yaw = predicted_yaw;
     }
 
     // Calculate the innovation
     float innovation = wrap_PI(predicted_yaw - measured_yaw);
+    // GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "Yaw Error %f", innovation);
 
     // Copy raw value to output variable used for data logging
     innovYaw = innovation;
