@@ -8,7 +8,7 @@
 #include "AP_NavEKF2_core.h"
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_Vehicle/AP_Vehicle.h>
-
+#include <GCS_MAVLink/GCS.h>
 #include <stdio.h>
 
 extern const AP_HAL::HAL& hal;
@@ -296,6 +296,7 @@ void NavEKF2_core::setOrigin()
 {
     // assume origin at current GPS location (no averaging)
     EKF_origin = _ahrs->get_gps().location();
+    GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "set ekf_origin: lat %d, lng %d", EKF_origin.lat,EKF_origin.lng);
     // define Earth rotation vector in the NED navigation frame at the origin
     calcEarthRateNED(earthRateNED, _ahrs->get_home().lat);
     validOrigin = true;
