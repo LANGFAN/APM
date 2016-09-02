@@ -106,7 +106,7 @@ void Copter::failsafe_gcs_check()
     // GCS failsafe event has occurred
     // update state, log to dataflash
     set_failsafe_gcs(true);
-    set_failsafe_radio(true); //added by LSH
+    //set_failsafe_radio(true); //added by LSH
     Log_Write_Error(ERROR_SUBSYSTEM_FAILSAFE_GCS, ERROR_CODE_FAILSAFE_OCCURRED);
 
     // clear overrides so that RC control can be regained with radio.

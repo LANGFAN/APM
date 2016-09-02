@@ -205,23 +205,29 @@ const AP_Param::Info Copter::var_info[] = {
 	//@param GUIDED_LOITER_TIME
 	//@DisplayName: guided loiter time
 	//@Description: when in guided take off to a alt and loiter guided_loiter_time   and then continue climb to the desire target
+	//@Units: s
 	//@Range: 0-1000000
+	// @Increment: 1
 	//@User: Advanced
-	GSCALAR(guided_loiter_time,        "GD_LOITER_TIME",   MAGNETOMETER),
+	GSCALAR(guided_loiter_time,        "GD_LOITER_TIME",   15),
 
 	//@param GUIDED_DESIRE_TARGET
 	//@DisplayName: guided desire target
 	//@Description: the desire target in uint m
+	//@Units: m
 	//@Range: 0-10000
+	// @Increment: 1
 	//@User: Advanced
-	GSCALAR(guided_desire_target,        "GD_DESIRE_TARGET",   MAGNETOMETER),
+	GSCALAR(guided_desire_target,        "GD_DESIRE_TARGET",   10),
 
-	//@param GUIDED_LOITER_TIME
-	//@DisplayName: guided loiter time
-	//@Description: when in guided take off to a alt and loiter guided_loiter_time   and then continue climb to the desire target
+	//@param GUIDED_TAKEOFF_ALT
+	//@DisplayName: guided takeoff alt
+	//@Description: when in guided take off to a alt and loiter guided_loiter_time  and then continue climb to the desire target
+	//@Units: m
 	//@Range: 1-100
+	// @Increment: 1
 	//@User: Advanced
-	GSCALAR(guided_takeoff_alt,        "GD_TAKEOFF_ALT",   MAGNETOMETER),
+	GSCALAR(guided_takeoff_alt,        "GD_TAKEOFF_ALT",   5),
 
     // @Param: MAG_ENABLE
     // @DisplayName: Compass enable/disable
