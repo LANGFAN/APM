@@ -1417,7 +1417,13 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             if (is_equal(packet.param1,1.0f)) {
                 // attempt to arm and return success or failure
                 if (copter.init_arm_motors(true)) {
-                    result = MAV_RESULT_ACCEPTED;
+
+                	//added by LSH
+                	if(copter.control_mode==GUIDED){
+						float takeoff_alt = copter.g.guided_takeoff_alt * 100;      // Convert m to cm
+						copter.do_user_takeoff(takeoff_alt, is_zero((float)0));
+                	}
+                			result = MAV_RESULT_ACCEPTED;
                 }
             } else if (is_zero(packet.param1) && (copter.ap.land_complete || is_equal(packet.param2,21196.0f)))  {
                 // force disarming by setting param2 = 21196 is deprecated

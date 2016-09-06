@@ -268,7 +268,9 @@ void Copter::fast_loop()
 
     // send outputs to the motors library
     motors_output();
-#if 0
+
+    //added by LSH   auto safety_switch on
+#if 1
 
     if(hal.util->safety_switch_state() == AP_HAL::Util::SAFETY_DISARMED){
     	safety_armed_last_time=AP_HAL::millis();
