@@ -1194,7 +1194,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             // param5 : latitude    (not supported)
             // param6 : longitude   (not supported)
             // param7 : altitude [metres]
-        	float takeoff_alt = copter.g.guided_takeoff_alt * 100;      // Convert m to cm
+        	float takeoff_alt = copter.g.guided_takeoff_alt * 100;      // Convert m to cm  changed by LSH
           //  float takeoff_alt = packet.param7 * 100;      // Convert m to cm
 
             if(copter.do_user_takeoff(takeoff_alt, is_zero(packet.param3))) {
