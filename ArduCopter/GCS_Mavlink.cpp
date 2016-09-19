@@ -980,7 +980,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
     case MAVLINK_MSG_ID_HEARTBEAT:      // MAV ID: 0
     {
         // We keep track of the last time we received a heartbeat from our GCS for failsafe purposes
-        if(msg->sysid != copter.g.sysid_my_gcs || msg->sysid != copter.g.sysid_my_rc) break;
+        if(msg->sysid != copter.g.sysid_my_gcs && msg->sysid != copter.g.sysid_my_rc) break;
         copter.failsafe.last_heartbeat_ms = AP_HAL::millis();
         copter.pmTest1++;
         break;
