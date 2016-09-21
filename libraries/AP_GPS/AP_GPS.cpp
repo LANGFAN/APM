@@ -147,9 +147,9 @@ const AP_Param::GroupInfo AP_GPS::var_info[] = {
     AP_GROUPINFO("OFFSET_PX", 14, AP_GPS, _x_offset, 35),
 
     // @Param: OFFSET_PY
-    // @DisplayName: Primary GPS Antenna x axis offset to center of UAV
-    // @Description: If primary GPS locates not at UAV center, you should enter its offset manually. This is the x axis offset, just a distance value in centimeter
-    // @Values: 0~100, unit:cm, default value: 35cm
+    // @DisplayName: Primary GPS Antenna y axis offset to center of UAV
+    // @Description: If primary GPS locates not at UAV center, you should enter its offset manually. This is the y axis offset, just a distance value in centimeter
+    // @Values: 0~100, unit:cm, default value: 0cm
     // @User: Advanced
     AP_GROUPINFO("OFFSET_PY", 15, AP_GPS, _y_offset, 0),
 
