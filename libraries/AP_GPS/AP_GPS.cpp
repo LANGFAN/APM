@@ -139,6 +139,20 @@ const AP_Param::GroupInfo AP_GPS::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("AUTO_CONFIG", 13, AP_GPS, _auto_config, 1),
 
+    // @Param: OFFSET_PX
+    // @DisplayName: Primary GPS Antenna x axis offset to center of UAV
+    // @Description: If primary GPS locates not at UAV center, you should enter its offset manually. This is the x axis offset, just a distance value in centimeter
+    // @Values: 0~100, unit:cm, default value: 35cm
+    // @User: Advanced
+    AP_GROUPINFO("OFFSET_PX", 14, AP_GPS, _x_offset, 35),
+
+    // @Param: OFFSET_PY
+    // @DisplayName: Primary GPS Antenna x axis offset to center of UAV
+    // @Description: If primary GPS locates not at UAV center, you should enter its offset manually. This is the x axis offset, just a distance value in centimeter
+    // @Values: 0~100, unit:cm, default value: 35cm
+    // @User: Advanced
+    AP_GROUPINFO("OFFSET_PY", 15, AP_GPS, _y_offset, 0),
+
     AP_GROUPEND
 };
 
@@ -396,6 +410,7 @@ AP_GPS::update_instance(uint8_t instance)
 
     // we have an active driver for this instance
     bool result = drivers[instance]->read();
+
     uint32_t tnow = AP_HAL::millis();
 
     // if we did not get a message, and the idle timer of 2 seconds

@@ -30,7 +30,7 @@
 ///
 
 #include <AP_Common/AP_Common.h>
-
+#include <AP_Math/AP_Math.h>
 #include <ctype.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -46,6 +46,11 @@ extern const AP_HAL::HAL& hal;
 #ifdef SHOUBEI_LOG_PATH
 #include <stdio.h>
 #endif
+
+// See LOCATION_SCALING_FACTOR_INV In AP_Common/Location.cpp
+// This factor used to convert offsets between primary GPS antenna with center of UAV to lat and lon diff
+// And then we can get the location of UAV center
+#define CM_TO_LOCATION_SCALING_FACTOR 8983.204953368922f
 
 // SiRF init messages //////////////////////////////////////////////////////////
 //
@@ -112,6 +117,7 @@ bool AP_GPS_SHOUBEI::read(void)
             parsed = true;
         }
     }
+		fill_uav_center_pos();
     return parsed;
 }
 
@@ -676,4 +682,22 @@ AP_GPS_SHOUBEI::_detect(struct SHOUBEI_detect_state &state, uint8_t data)
 //					  }
 //		}
 //	  return valid_sentence;
+}
+
+void
+AP_GPS_SHOUBEI::fill_uav_center_pos(void)
+{
+	if(state.have_gps_heading)
+	{
+		float& heading = state.gps_heading;
+		// distance between primary gps with UAV center in cm
+		float distance = norm(gps._x_offset, gps._y_offset) * CM_TO_LOCATION_SCALING_FACTOR;
+		if(!(is_zero(distance) || isnan(distance) || isinf(distance)))
+		{
+			float scale = cosf(state.location.lat * 1.0e-7f * DEG_TO_RAD);
+			constrain_float(scale, 0.01f, 1.0f);
+			state.location.lng += (int32_t)(distance * sinf(heading) / scale);
+			state.location.lat += (int32_t)(distance * cosf(heading));
+		}
+	}
 }
