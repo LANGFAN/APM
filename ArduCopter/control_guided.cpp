@@ -166,7 +166,8 @@ void Copter::guided_pos_control_start()
     wp_nav.set_wp_destination(stopping_point, false);
 
     // initialise yaw
-    set_auto_yaw_mode(get_default_auto_yaw_mode(false));
+//    set_auto_yaw_mode(get_default_auto_yaw_mode(false));
+    set_auto_yaw_mode(AUTO_YAW_HOLD);//changed by LSH   when goto the disire don't change the yaw
 }
 
 // initialise guided mode's velocity controller
@@ -419,16 +420,19 @@ void Copter::guided_takeoff_run()
 
     // set motors to full range
     motors.set_desired_spool_state(AP_Motors::DESIRED_THROTTLE_UNLIMITED);
-    guided_reached_takeoff_destination=wp_nav.update_wpnav();
 
     // run waypoint controller
-    failsafe_terrain_set_status(guided_reached_takeoff_destination);
+    failsafe_terrain_set_status(  wp_nav.update_wpnav());
 //    failsafe_terrain_set_status(wp_nav.update_wpnav());
 
     // call z-axis position controller (wpnav should have already updated it's alt target)
     pos_control.update_z_controller();
 
-    // roll & pitch from waypoint controller, yaw rate from pilot
+   float curr_alt=( inertial_nav.get_altitude()-g.guided_takeoff_alt<0) ? (-inertial_nav.get_altitude()-g.guided_takeoff_alt) : (inertial_nav.get_altitude()-g.guided_takeoff_alt);
+   if( curr_alt<1){
+	   guided_reached_takeoff_destination=true;
+   }
+   // roll & pitch from waypoint controller, yaw rate from pilot
     attitude_control.input_euler_angle_roll_pitch_euler_rate_yaw(wp_nav.get_roll(), wp_nav.get_pitch(), target_yaw_rate);
     if(guided_reached_takeoff_destination){
     	guided_loiter_start();
