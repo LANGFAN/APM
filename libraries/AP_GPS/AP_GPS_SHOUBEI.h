@@ -125,6 +125,10 @@ private:
     /// return true if we have a new set of SHOUBEI messages
     bool _have_new_message(void);
 
+    /// If primary GPS locates not at the UAV center
+    /// here we convert its lat/lon to uav center location according to gps heading and offsets
+    void fill_uav_center_pos(void);
+
     uint8_t _parity;                                                    ///< SHOUBEI message checksum accumulator
     bool _is_checksum_term;                                     ///< current term is the checksum
     char _term[15];                                                     ///< buffer for the current term within the current sentence
