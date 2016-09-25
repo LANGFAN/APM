@@ -428,10 +428,12 @@ void Copter::guided_takeoff_run()
     // call z-axis position controller (wpnav should have already updated it's alt target)
     pos_control.update_z_controller();
 
-   float curr_alt=( inertial_nav.get_altitude()-g.guided_takeoff_alt<0) ? (-inertial_nav.get_altitude()-g.guided_takeoff_alt) : (inertial_nav.get_altitude()-g.guided_takeoff_alt);
-   if( curr_alt<1){
-	   guided_reached_takeoff_destination=true;
-   }
+  int curr_alt_error=g.guided_takeoff_alt*100-inertial_nav.get_altitude();
+//  if(curr_alt_error<50){
+//	   guided_reached_takeoff_destination=true;
+//  }
+  	  guided_reached_takeoff_destination=true;
+
    // roll & pitch from waypoint controller, yaw rate from pilot
     attitude_control.input_euler_angle_roll_pitch_euler_rate_yaw(wp_nav.get_roll(), wp_nav.get_pitch(), target_yaw_rate);
     if(guided_reached_takeoff_destination){
