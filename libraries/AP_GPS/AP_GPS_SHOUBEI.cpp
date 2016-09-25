@@ -50,7 +50,7 @@ extern const AP_HAL::HAL& hal;
 // See LOCATION_SCALING_FACTOR_INV In AP_Common/Location.cpp
 // This factor used to convert offsets between primary GPS antenna with center of UAV to lat and lon diff
 // And then we can get the location of UAV center
-#define CM_TO_LOCATION_SCALING_FACTOR 8983.204953368922f
+#define CM_TO_LOCATION_SCALING_FACTOR 0.8983204953368922f
 
 // SiRF init messages //////////////////////////////////////////////////////////
 //
