@@ -432,7 +432,7 @@ void Copter::guided_takeoff_run()
 //  if(curr_alt_error<50){
 //	   guided_reached_takeoff_destination=true;
 //  }
-  	  guided_reached_takeoff_destination=true;
+  	  guided_reached_takeoff_destination=false;
 
    // roll & pitch from waypoint controller, yaw rate from pilot
     attitude_control.input_euler_angle_roll_pitch_euler_rate_yaw(wp_nav.get_roll(), wp_nav.get_pitch(), target_yaw_rate);
