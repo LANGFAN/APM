@@ -127,9 +127,8 @@ void Copter::guided_loiter_run()
 	        // roll, pitch from waypoint controller, yaw heading from auto_heading()
 	        attitude_control.input_euler_angle_roll_pitch_yaw(wp_nav.get_roll(), wp_nav.get_pitch(), get_auto_heading(),true);
 	    }
-
 	    // check if we've completed this stage of autotakeoff
-	    if ((millis() - guided_loiter_start_time) >(uint32_t) g.guided_loiter_time*1000) {
+	    if ((millis() - guided_loiter_start_time) >((uint32_t) g.guided_loiter_time+(uint32_t)(g.guided_takeoff_alt*100/wp_nav.get_speed_up()))*1000) {
 	    	guided_loiter_complete=true;
 	    	guided_goto_desire_target_start();
 			guided_loiter_complete=false;
@@ -427,11 +426,13 @@ void Copter::guided_takeoff_run()
 
     // call z-axis position controller (wpnav should have already updated it's alt target)
     pos_control.update_z_controller();
-
-   float curr_alt=( inertial_nav.get_altitude()-g.guided_takeoff_alt<0) ? (-inertial_nav.get_altitude()-g.guided_takeoff_alt) : (inertial_nav.get_altitude()-g.guided_takeoff_alt);
-   if( curr_alt<1){
+    uint32_t now = AP_HAL::millis();
+  float curr_alt_error=g.guided_takeoff_alt*100-inertial_nav.get_altitude();
+//  GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_WARNING,"ALT_error  %f",  g.guided_takeoff_alt*100/wp_nav.get_speed_up());
+//                if(curr_alt_error<50)
 	   guided_reached_takeoff_destination=true;
-   }
+//  	  guided_reached_takeoff_destination=false;
+
    // roll & pitch from waypoint controller, yaw rate from pilot
     attitude_control.input_euler_angle_roll_pitch_euler_rate_yaw(wp_nav.get_roll(), wp_nav.get_pitch(), target_yaw_rate);
     if(guided_reached_takeoff_destination){

@@ -66,6 +66,7 @@ extern const AP_HAL::HAL& hal;
 */
 #define UniStrong_INIT_MSG\
 	"$JOFF\r\n"\
+	"$JDIFF,RTK\r\n"\
 	"$JASC,GPGGA,10\r\n"\
 	"$JASC,GPVTG,10\r\n"\
 	"$JASC,GPHPR,15\r\n"\
