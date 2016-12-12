@@ -83,7 +83,6 @@ const AP_Param::GroupInfo AP_BoardConfig::var_info[] = {
     // @Values: 0:Disabled,1:50Hz,2:75Hz,3:100Hz,4:150Hz,5:200Hz,6:250Hz,7:300Hz
     // @RebootRequired: True
     AP_GROUPINFO("SBUS_OUT",   4, AP_BoardConfig, _sbus_out_rate, 0),
-    
 #elif CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
 #endif
 
@@ -99,9 +98,10 @@ const AP_Param::GroupInfo AP_BoardConfig::var_info[] = {
     // @DisplayName:  Enable use of UAVCAN devices
     // @Description: Enabling this option on a Pixhawk enables UAVCAN devices. Note that this uses about 25k of memory
     // @Values: 0:Disabled,1:Enabled
-    AP_GROUPINFO("CAN_ENABLE", 6, AP_BoardConfig, _can_enable, 0),
+    AP_GROUPINFO("CAN_ENABLE", 6, AP_BoardConfig, _can_enable, 1),
+
 #endif
-    
+
 #if CONFIG_HAL_BOARD == HAL_BOARD_PX4
     // @Param: SAFETY_MASK
     // @DisplayName: Channels to which ignore the safety switch state
@@ -149,7 +149,7 @@ void AP_BoardConfig::init()
         }
     }
     if (i == ARRAY_SIZE(mode_table)) {
-        hal.console->printf("RCOutput: invalid BRD_PWM_COUNT %u\n", mode_parm); 
+        hal.console->printf("RCOutput: invalid BRD_PWM_COUNT %u\n", mode_parm);
     } else {
         int fd = open("/dev/px4fmu", 0);
         if (fd == -1) {
@@ -157,7 +157,7 @@ void AP_BoardConfig::init()
         }
         if (ioctl(fd, PWM_SERVO_SET_MODE, mode_table[i].mode_value) != 0) {
             hal.console->printf("RCOutput: unable to setup AUX PWM with BRD_PWM_COUNT %u\n", mode_parm);
-        }   
+        }
         close(fd);
         if (mode_table[i].num_gpios < 2) {
             // reduce change of config mistake where relay and PWM interfere
@@ -215,7 +215,7 @@ void AP_BoardConfig::init()
         if (ret != 0) {
             hal.console->printf("UAVCAN: failed to start\n");
         } else {
-            hal.console->printf("UAVCAN: started\n");            
+            hal.console->printf("UAVCAN: started\n");
             // give some time for CAN bus initialisation
             hal.scheduler->delay(2000);
         }
@@ -231,6 +231,7 @@ void AP_BoardConfig::init()
             if (fd == -1) {
                 AP_HAL::panic("Configuration invalid - unable to open /dev/uavcan/esc");
             }
+            hal.console->printf("UAVCAN started from cmd: uavcan start fw");
 
             // delay startup, UAVCAN still discovering nodes
             while (ioctl(fd, UAVCAN_IOCG_NODEID_INPROGRESS,0) == OK &&
@@ -242,9 +243,9 @@ void AP_BoardConfig::init()
         }
    }
 #endif
-    
+
 #elif CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
     /* configure the VRBRAIN driver for the right number of PWMs */
 
-#endif    
+#endif
 }
