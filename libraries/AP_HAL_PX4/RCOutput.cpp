@@ -416,12 +416,12 @@ void PX4RCOutput::_publish_actuators(void)
     }
     bool armed = hal.util->get_soft_armed();
 	actuators.timestamp = hrt_absolute_time();
-    // for (uint8_t i=0; i<actuators.nvalues; i++) {
-    for (uint8_t i=0; i<4; i++) {
+    for (uint8_t i=0; i<actuators.nvalues; i++) {
+    // for (uint8_t i=0; i<4; i++) {
       if (!armed) {
           actuators.values[i] = 0;
       } else {
-          actuators.values[i] = (_period[2] - _esc_pwm_min) / (float)(_esc_pwm_max - _esc_pwm_min);
+          actuators.values[i] = (_period[i] - _esc_pwm_min) / (float)(_esc_pwm_max - _esc_pwm_min);
       }
       // actuator values are from -1 to 1
       actuators.values[i] = actuators.values[i]*2 - 1;
