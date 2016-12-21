@@ -1,5 +1,5 @@
 /*
- *  AP_Notify Library. 
+ *  AP_Notify Library.
  * based upon a prototype library by David "Buzz" Bussenschutt.
  */
 
@@ -39,10 +39,27 @@ public:
     // called at 50Hz
     virtual void update();
 
+    // RGB status indicates vehicle status, and can be divided to 12 types
+    enum VEHICLE_RGB_STATUS {
+      RGB_WHITE = 0,            // power on
+      RGB_RED_BLUE_FLASH,       // initialising
+      RGB_RED_BLUE_GREEN_FLASH, // esc calibration
+      RGB_YELLOW_DOUBLE_FLASH,  // pre-arm fail
+      RGB_BLUE_FALSH_SLOW,      // flashing blue if disarmed with no gps lock or gps pre-arm checks have failed
+      RGB_GREEN_FLASH_SLOW,     // slow flashing green if disarmed with GPS 3d lock (and no DGPS)
+      RGB_GREEN_FLASH_FAST,     // fast flashing green if disarmed with GPS 3D lock and DGPS
+      RGB_BLUE,                 // armed without gps lock
+      RGB_GREEN,                // armed and gps lock
+      RGB_YELLOW,               // radio, battery failsafe or ekf bad
+      RGB_RED,                  // 0.5S after ekf bad, and state continuing
+      RGB_OFF                   // failsafe continuing
+    };
+
 protected:
     // methods implemented in hardware specific classes
     virtual bool hw_init(void) = 0;
     virtual bool hw_set_rgb(uint8_t red, uint8_t green, uint8_t blue) = 0;
+    virtual void rgb_status_update(VEHICLE_RGB_STATUS & rgb_status) = 0;
 
     // meta-data common to all hw devices
     uint8_t counter;
@@ -54,6 +71,11 @@ protected:
     uint8_t _led_bright;
     uint8_t _led_medium;
     uint8_t _led_dim;
+
+    // hold rgb led status, enum value
+    VEHICLE_RGB_STATUS _rgb_status;
 private:
     virtual void update_colours();
+    // update rgb_status according to AP_Notify::flags
+    // virtual void rgb_status_update();
 };
